@@ -1,0 +1,17 @@
+# Root level ignores
+# (Project-specific ignores are in backend/.gitignore and frontend/.gitignore)
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

@@ -26,40 +26,48 @@ export const useUsers = () => {
   const createUser = useCallback(
     async (userData) => {
       try {
-        await userService.create(userData);
-        await loadUsers();
+        setError(null);
+        const newUser = await userService.create(userData);
+        // Optimistically add the new user to the list
+        setUsers((prevUsers) => [...prevUsers, newUser]);
       } catch (err) {
         setError(err.message || "Failed to create user");
         throw err;
       }
     },
-    [loadUsers]
+    []
   );
 
   const updateUser = useCallback(
     async (id, userData) => {
       try {
-        await userService.update(id, userData);
-        await loadUsers();
+        setError(null);
+        const updatedUser = await userService.update(id, userData);
+        // Optimistically update only the specific user in the list
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => (user.id === id ? updatedUser : user))
+        );
       } catch (err) {
         setError(err.message || "Failed to update user");
         throw err;
       }
     },
-    [loadUsers]
+    []
   );
 
   const deleteUser = useCallback(
     async (id) => {
       try {
+        setError(null);
         await userService.delete(id);
-        await loadUsers();
+        // Optimistically remove the user from the list
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
       } catch (err) {
         setError(err.message || "Failed to delete user");
         throw err;
       }
     },
-    [loadUsers]
+    []
   );
 
   useEffect(() => {

@@ -14,17 +14,29 @@ async function geocodeZip(zip) {
   }
 
   const url = `https://api.openweathermap.org/geo/1.0/zip`;
-  const resp = await axios.get(url, {
-    params: { zip: `${zip},${country}`, appid: apiKey },
-    timeout: 8000,
-  });
-
-  const { lat, lon } = resp.data || {};
-  if (typeof lat !== "number" || typeof lon !== "number") {
-    throw new Error("Geocoding API returned invalid lat/lon");
-  }
   
-  return { latitude: lat, longitude: lon };
+  try {
+    const resp = await axios.get(url, {
+      params: { zip: `${zip},${country}`, appid: apiKey },
+      timeout: 8000,
+    });
+
+    const { lat, lon } = resp.data || {};
+    if (typeof lat !== "number" || typeof lon !== "number") {
+      throw new Error("Geocoding API returned invalid lat/lon");
+    }
+    
+    return { latitude: lat, longitude: lon };
+  } catch (error) {
+    // Handle invalid zip code errors from OpenWeather API
+    if (error.response && (error.response.status === 404 || error.response.status === 400)) {
+      const customError = new Error(`Zip code ${zip} could not be found.`);
+      customError.statusCode = 400;
+      throw customError;
+    }
+    // Re-throw other errors
+    throw error;
+  }
 }
 
 /**

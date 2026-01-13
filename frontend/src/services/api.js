@@ -27,6 +27,11 @@ api.interceptors.response.use(
     // Handle common errors
     if (error.response) {
       console.error("API Error:", error.response.data);
+      // Extract error message from response
+      const errorMessage = error.response.data?.error || error.response.data?.message || error.message;
+      const customError = new Error(errorMessage);
+      customError.response = error.response;
+      return Promise.reject(customError);
     } else if (error.request) {
       console.error("Network Error:", error.request);
     } else {
